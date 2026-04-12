@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from statsbombpy import sb
 import pandas as pd
 from mplsoccer import Pitch, add_image, FontManager
@@ -5,7 +7,6 @@ from PIL import Image
 from urllib.request import urlopen
 import warnings
 import cmasher as cmr
-import numpy as np
 from highlight_text import ax_text
 from mplsoccer import Sbopen
 import matplotlib.pyplot as plt
@@ -18,6 +19,8 @@ from passmap_logic import (
     roster_for_team,
     squad_size_and_sub_count,
 )
+
+_IMAGES_DIR = Path(__file__).resolve().parent / "images"
 
 
 def plot_pass_maps(focal_team: str, opponent: str, events: pd.DataFrame, lineup: pd.DataFrame) -> None:
@@ -54,9 +57,9 @@ def plot_pass_maps(focal_team: str, opponent: str, events: pd.DataFrame, lineup:
     )
 
     sb_logo = Image.open(urlopen(SB_LOGO_URL))
-    # Optional flags (same as individual notebook); uncomment if ``ita.png`` / ``sp.png`` exist:
-    # spain = Image.open("sp.png")
-    # italy = Image.open("ita.png")
+    # Optional flags; uncomment if ``images/ita.png`` and ``images/sp.png`` exist:
+    # spain = Image.open(_IMAGES_DIR / "sp.png")
+    # italy = Image.open(_IMAGES_DIR / "ita.png")
 
     warnings.simplefilter("ignore", UserWarning)
 

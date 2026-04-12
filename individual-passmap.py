@@ -1,6 +1,6 @@
-# Notebook-style installs (use venv + requirements.txt in production):
 # pip install highlight-text cmasher
 
+from pathlib import Path
 from urllib.request import urlopen
 import warnings
 
@@ -19,6 +19,8 @@ from passmap_logic import (
     roster_for_team,
     squad_size_and_sub_count,
 )
+
+_IMAGES_DIR = Path(__file__).resolve().parent / "images"
 
 comps = sb.competitions()
 
@@ -83,8 +85,8 @@ SB_LOGO_URL = (
 )
 
 sb_logo = Image.open(urlopen(SB_LOGO_URL))
-spain = Image.open("sp.png")
-italy = Image.open("ita.png")
+spain = Image.open(_IMAGES_DIR / "sp.png")
+italy = Image.open(_IMAGES_DIR / "ita.png")
 
 warnings.simplefilter("ignore", UserWarning)
 
