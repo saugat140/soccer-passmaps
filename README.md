@@ -8,6 +8,84 @@ Pass visualizations from **StatsBomb [open data](https://github.com/statsbomb/op
 
 ---
 
+## Visualizations
+
+The project produces two main chart types from StatsBomb event data. Examples below use matches from the open dataset; your figures will match these once setup is complete and you run the scripts.
+
+### Individual multi-panel pass map
+
+One mini-pitch per squad member: completed passes (green), incomplete passes (purple), substitution minutes, and a team ball-receipt heatmap.
+
+**Example:** UEFA Euro 2020 semi-final — Italy vs Spain (`match_id=3795220`).
+
+![Individual pass map — Italy vs Spain, Euro 2020 semi-final](images/individual-passmap-preview.png)
+
+**How to reproduce**
+
+1. Complete [Setup](#setup) (venv + `pip install -r requirements.txt`).
+2. From the repo root, run:
+
+   ```bash
+   python individual-passmap.py
+   ```
+
+3. The script loads that match over the network, builds the 6×4 grid, and opens the figure in a matplotlib window (`plt.show()`).
+
+No prompts — competition, season, and match are hard-coded in the script.
+
+---
+
+### Team jersey network pass map
+
+One pitch: jersey-number nodes at average passer positions, red edges between passer and recipient (line width ∝ pass count). Uses successful passes **before the first substitution**; edges with only one pass are dropped.
+
+**Example:** Africa Cup of Nations — Nigeria vs Ghana (`match_id=3923881`, same as `team-pass-maps.ipynb`).
+
+![Team pass network — Nigeria vs Ghana](images/network-passmap-preview.png)
+
+**How to reproduce**
+
+1. Complete [Setup](#setup).
+2. From the repo root, run:
+
+   ```bash
+   python passmap-with-input.py
+   ```
+
+3. Enter the prompts when asked. For the Nigeria example:
+
+   | Prompt | Value |
+   |--------|-------|
+   | `competition_id` | `1267` |
+   | `season_id` | `107` |
+   | `home_team` | `Nigeria` |
+
+   Team names must match StatsBomb strings exactly. The script picks the **first home fixture** for that team in the returned match table (for Nigeria in AFCON 2023 that is Nigeria vs Guinea).
+
+4. The network map opens in a matplotlib window.
+
+To recreate the **Nigeria vs Ghana** preview specifically, use the notebook `team-pass-maps.ipynb` (hard-coded `match_id=3923881`) or point `passmap-with-input.py` at that match after looking up the row in `sb.matches(competition_id=1267, season_id=107)`.
+
+---
+
+### Tournament batch (same layout as individual)
+
+`tournament-passmaps.py` prompts for `competition_id`, `season_id`, and a **team name**, then builds one individual-style figure per match that team played (home or away). It does not call `plt.show()` by default — close each window manually, or add `plt.show()` / `fig.savefig(...)` inside the loop if you want to save outputs.
+
+**Example prompts for Italy at Euro 2020:**
+
+| Prompt | Value |
+|--------|-------|
+| `competition_id` | `55` |
+| `season_id` | `43` |
+| team name | `Italy` |
+
+```bash
+python tournament-passmaps.py
+```
+
+---
+
 ## Repository layout
 
 | Path | Purpose |
@@ -24,6 +102,8 @@ Pass visualizations from **StatsBomb [open data](https://github.com/statsbomb/op
 | `requirements-dev.txt` | Dev tools (`pytest`). |
 | `.gitignore` | Ignores `.venv`, `.ipynb_checkpoints`, caches, etc. |
 | `images/ita.png`, `images/sp.png` | Flag images for individual map title (notebook + `individual-passmap.py`). |
+| `images/individual-passmap-preview.png` | README example — individual multi-panel map (Italy vs Spain). |
+| `images/network-passmap-preview.png` | README example — jersey network map (Nigeria vs Ghana). |
 
 ---
 
@@ -122,6 +202,7 @@ Same **story** as `passmap-with-input.py`: AFCON example, Nigeria, successful pa
 ## Assets
 
 - **`images/ita.png`** / **`images/sp.png`** — Used by the **individual** notebook and **`individual-passmap.py`**. The script resolves paths from the **repo root** next to `individual-passmap.py`, so it works even if your shell’s working directory is elsewhere. The notebook uses **`images/sp.png`** paths relative to the **notebook working directory** (usually the project root in VS Code/Cursor).
+- **`images/individual-passmap-preview.png`** / **`images/network-passmap-preview.png`** — Static examples embedded in this README. Regenerate by running the scripts in [Visualizations](#visualizations) and saving the figure (`plt.savefig("images/…")` before or instead of `plt.show()`).
 
 ---
 
