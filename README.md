@@ -86,17 +86,41 @@ python tournament-passmaps.py
 
 ---
 
-## Repository layout
+## Web dashboard
+
+`dashboard.py` is a **Streamlit** app that builds either map type from human-readable choices — no numeric IDs.
+
+1. Complete [Setup](#setup), then install Streamlit:
+
+   ```bash
+   pip install streamlit
+   ```
+
+2. Start the app from the repo root:
+
+   ```bash
+   streamlit run dashboard.py
+   ```
+
+3. In the sidebar, pick **Competition** → **Season / year** → **Team** → **Match**, choose **Individual** or **Team (jersey network)**, then click **Generate pass map**.
+
+Lookups live in `passmap_lookup.py`; figure builders in `passmap_plots.py` (shared with `tournament-passmaps.py`).
+
+---
 
 | Path | Purpose |
 |------|---------|
 | `passmap_logic.py` | Shared **pure pandas** transforms (no HTTP). Used by scripts and tests. |
+| `passmap_lookup.py` | Resolve competition, season, team, and match from display names. |
+| `passmap_plots.py` | Matplotlib figure builders (individual + network maps). |
+| `dashboard.py` | **Streamlit** web UI — friendly dropdowns instead of numeric IDs. |
 | `individual-passmap.py` | One **fixed** match: Euro 2020 semi Italy vs Spain → **multi-panel individual** map. |
-| `tournament-passmaps.py` | **Prompts** for competition / season / team → loops matches → same **multi-panel** style via `plot_pass_maps`. |
+| `tournament-passmaps.py` | **Prompts** for competition / season / team → loops matches → same **multi-panel** style via `plot_individual_pass_map`. |
 | `passmap-with-input.py` | **Prompts** for competition / season / home team → **one** home fixture → **jersey network** map on a single pitch. |
 | `individual-pass-maps.ipynb` | Exploration notebook for the **individual** multi-panel workflow. |
 | `team-pass-maps.ipynb` | Exploration notebook for the **network** map workflow. |
 | `tests/test_passmap_logic.py` | Unit tests for `passmap_logic`. |
+| `tests/test_passmap_lookup.py` | Unit tests for `passmap_lookup`. |
 | `pytest.ini` | Pytest config (`pythonpath` = repo root). |
 | `requirements.txt` | Pinned runtime dependencies (`pip freeze`). |
 | `requirements-dev.txt` | Dev tools (`pytest`). |
@@ -167,7 +191,7 @@ Comment blocks document optional **notebook-style** exploration (`unique()`, `sb
 1. **`input()`** for `competition_id`, `season_id`, and **team name** (must match StatsBomb strings).
 2. **`sb.matches`** → rows where the team is **home or away**.
 3. For each match: **`opponent_for_match`** for the title’s opponent name; **`Sbopen`** `event` + `lineup`.
-4. **`plot_pass_maps(focal_team, opponent, events, lineup)`**:
+4. **`plot_individual_pass_map(focal_team, opponent, events, lineup)`** (from `passmap_plots.py`):
    - Same data prep as **`individual-passmap`**: merge sub times, roster for focal team, passes without throw-ins, receipts for heatmap, 6×4 grid, KDE, axis cleanup, logo, optional flags (commented out by default).
 
 No **`plt.show()`** in the loop (figures stay open until closed; you can add **`plt.show()`** or **`savefig`** per match if you prefer).
@@ -218,7 +242,13 @@ Same **story** as `passmap-with-input.py`: AFCON example, Nigeria, successful pa
 
    `requirements.txt` is a full **`pip freeze`** (pinned). **`pywinpty`** is Windows-only; on Linux/macOS, install there and refresh the lockfile if needed.
 
-4. For notebooks: **Python** + **Jupyter** extensions in the editor; select the venv kernel.
+4. For the **web dashboard**, also install dev deps (includes Streamlit):
+
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+
+5. For notebooks: **Python** + **Jupyter** extensions in the editor; select the venv kernel.
 
 Data loads over the **network** on first use. Large **`DataFrame`** displays can slow the UI—use **`.head()`** / **`.shape`** when exploring.
 
@@ -234,6 +264,8 @@ pytest
 **`pytest.ini`** sets **`pythonpath = .`** so **`import passmap_logic`** works from the repo root.
 
 **`tests/test_passmap_logic.py`** covers: competition name lookup, opponent resolution, pass / sub filtering (including **no substitution**), jersey attachment, network table aggregation (with the recipient-as-passer caveat), sub-time merge into lineup, and individual-style receipt / throw-in filters.
+
+**`tests/test_passmap_lookup.py`** covers: competition / season name resolution, team lists, and match labels for the dashboard dropdowns.
 
 ---
 
