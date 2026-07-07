@@ -1,2 +1,5 @@
 # Dev / CI (install on top of requirements.txt)
 pytest>=8.0.0
+
+# Web dashboard (streamlit run dashboard.py)
+streamlit>=1.59.0
